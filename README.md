@@ -122,6 +122,6 @@ Este projeto é de código aberto e distribuído sob a licença MIT. Consulte o 
 
 ## Observações Finais
 
-    Caso esteja enfrentando problemas com o envio de e-mails, verifique as configurações do seu provedor de e-mail e se a autenticação de dois fatores está ativada.
+Caso esteja enfrentando problemas com o envio de e-mails, verifique as configurações do seu provedor de e-mail e se a autenticação de dois fatores está ativada.
 
-    Lembre-se de garantir que os arquivos Excel com os e-mails estejam formatados corretamente para evitar problemas no processamento.
+Lembre-se de garantir que os arquivos Excel com os e-mails estejam formatados corretamente para evitar problemas no processamento.
