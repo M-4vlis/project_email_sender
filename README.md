@@ -1,127 +1,111 @@
-# Email Sender: Envio de E-mails em Massa
 
-A Email Sender é uma aplicação web desenvolvida para automatizar o envio de e-mails em massa, ideal para pessoas ou equipes que realizam tarefas repetitivas de envio de e-mails para múltiplos destinatários, como no caso de solicitação de cotações para fornecedores.
+# Aplicação de Envio de E-mails em Massa
 
-Com ela, você pode enviar e-mails personalizados para centenas de contatos em um processo simples, rápido e eficiente, poupando horas de trabalho manual.
+Este projeto nasceu da necessidade de automatizar o envio de e-mails para **centenas de fornecedores** com solicitações de cotação. No trabalho, minha equipe enfrentava uma tarefa repetitiva, demorada e propensa a erros humanos.
 
+A ideia foi criar uma aplicação web intuitiva que **permite enviar e-mails personalizados em massa** usando um arquivo Excel como base. E o melhor: deixei ela mais robusta para que **qualquer pessoa** consiga usar, mesmo sem conhecimento técnico. É só preencher os campos, subir os arquivos e *puf*, e-mail enviado! 🚀
 
-## Funcionalidades
+---
 
-- Envio de e-mails personalizados em massa: Envie e-mails de forma automatizada para diversos destinatários a partir de uma lista de e-mails.
+## Visão Geral
 
-- Integração com diversos provedores de e-mail: Gmail, Outlook, Yahoo e configuração personalizada com qualquer provedor SMTP.
+- Interface web simples e intuitiva  
+- Suporte a diferentes provedores de e-mail (Gmail, Outlook, Yahoo, etc.)  
+- Possibilidade de configurar servidor SMTP personalizado  
+- Suporte a anexos e campo CC  
+- Barra de progresso e feedback visual em tempo real  
+- Tema escuro 💻🌙  
 
-- Modo Escuro: Para tornar a interface mais agradável em ambientes com pouca luz.
+---
 
-- Testar Conexão: Verifique se a configuração do servidor SMTP está correta antes de iniciar o envio.
+## Tecnologias Utilizadas
 
-- Upload de Lista de Contatos (Excel): Faça upload de um arquivo Excel (.xlsx, .xls, .csv) com os e-mails dos destinatários.
+| Camada                    | Tecnologias |
+|---------------------------|-------------|
+| **Frontend**              | `HTML`, `CSS`, `JavaScript`, `jQuery` |
+| **Backend**               | `Python`, `Flask` |
+| **Envio de E-mails**      | `Flask-Mail` |
+| **Estilização e UI**      | `Bootstrap` (layout responsivo), `Font Awesome` (ícones) |
+| **Banco de Dados**        | Não utilizado. Dados manipulados em memória durante o envio |
 
-- Anexos e Cópia (CC): Envie arquivos em anexo e inclua destinatários em cópia.
-
-- Feedback e Progresso: Receba informações em tempo real sobre o progresso do envio de e-mails.
-
-
-## Tecnologias Usadas
-
-    Frontend: HTML, CSS, JavaScript (com jQuery para algumas interações)
-
-    Backend: Python (Flask)
-
-    Banco de Dados: Não utilizado (o armazenamento de dados é feito em memória durante o envio)
-
-    Outras Bibliotecas:
-
-        Bootstrap (para layout responsivo)
-
-        Font Awesome (para ícones)
-
-        Flask-Mail (para o envio de e-mails)
-
-
-## Como Rodar o Projeto
-
-Pré-requisitos
-
-1. Python 3.x: Caso ainda não tenha o Python instalado, baixe e instale a versão mais recente aqui.
-
-2. Bibliotecas do Python: O projeto utiliza algumas bibliotecas que precisam ser instaladas. Para isso, basta rodar o seguinte comando no terminal:
-
-```bash
-pip install -r requirements.txt
-```
-
-3. Arquivo Excel com os E-mails: Prepare um arquivo com os e-mails dos destinatários, em um formato .xlsx, .xls ou .csv.
-
-
-## Passo a Passo para Executar
-
-1. Clone este repositório:
-```bash
-git clone https://github.com/seu-usuario/email-sender.git
-cd email-sender
-```
-
-2. Instale as dependências:
-```bash
-pip install -r requirements.txt
-```
-
-3. Execute a aplicação Flask:
-```bash
-python app.py
-```
-
-4. Abra o navegador e acesse o endereço:
-```bash
-    http://localhost:5000
-```
-
+---
 
 ## Como Usar
 
-1. Configuração Inicial
+### 1. 📁 Clone o repositório
 
-    Seleção do Provedor de E-mail: Escolha o provedor de e-mail que você usará (ex: Gmail, Outlook, Yahoo). Se não estiver usando um dos provedores pré-configurados, escolha a opção "Custom" e insira manualmente as configurações do seu servidor SMTP.
+```bash
+git clone https://github.com/seu-usuario/email-mass-sender.git
+cd email-mass-sender
+```
 
-    Autenticação: Insira seu e-mail e senha. Lembre-se de usar senhas de app para provedores como Gmail, caso tenha autenticação de dois fatores ativada.
+### 2. 📦 Crie o ambiente virtual e instale as dependências
 
-2. Enviar E-mail em Massa
+```bash
+python -m venv venv
+source venv/bin/activate  # No Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-    Arquivo Excel: Faça upload de um arquivo Excel com os e-mails dos destinatários.
+### 3. ▶️ Inicie o servidor Flask
 
-    Assunto e Corpo: Preencha o assunto e o corpo do e-mail. O corpo do e-mail pode incluir formatação HTML se necessário.
+```bash
+flask run
+```
 
-    Anexos: Faça upload de arquivos que deseja enviar junto com o e-mail (opcional).
+Acesse no navegador: [http://localhost:5000](http://localhost:5000)
 
-    Email em Cópia (CC): Se necessário, adicione um e-mail para ser colocado em cópia (CC).
+---
 
-3. Testar Conexão
+## Como Funciona
 
-Antes de enviar os e-mails, você pode testar a conexão com o servidor SMTP para garantir que as configurações estão corretas. Clique no botão "Testar Conexão" e aguarde a confirmação.
+1. Escolha o provedor de e-mail ou configure manualmente  
+2. Preencha seu e-mail e senha (use senha de aplicativo, se necessário)  
+3. Faça o upload de um arquivo Excel contendo os e-mails dos destinatários  
+4. Preencha o assunto, corpo do e-mail e, se quiser, adicione anexos  
+5. Clique em **Enviar Emails** e veja a mágica acontecer ✨  
 
-4. Enviar E-mails
+---
 
-Após configurar tudo, clique no botão "Enviar Emails" para iniciar o processo de envio. Durante o envio, você verá um indicador de progresso para acompanhar o status.
+## Formato Esperado do Arquivo Excel
 
+| Email               | Nome (opcional) |
+|---------------------|-----------------|
+| fornecedor@teste.com | Fornecedor A    |
+| exemplo@teste.com    | Fornecedor B    |
 
-## Modo Escuro
+---
 
-A aplicação possui um modo escuro que pode ser ativado clicando no ícone de lua no canto superior direito. O modo escuro melhora a experiência visual em ambientes com pouca luz.
+## Funcionalidades Extras
 
+| Recurso                        | Descrição |
+|-------------------------------|-----------|
+| 🌑 **Modo Escuro**            | Ativável com um clique. Seu olho agradece. |
+| 🔌 **Teste de Conexão SMTP**  | Verifica se sua conta está funcionando antes de disparar tudo |
+| 📎 **Upload de Anexos**       | Suporta `.jpg`, `.png`, `.gif`, `.pdf`, `.xlsx`, `.docx`, entre outros |
+| 📤 **Barra de Progresso**     | Veja em tempo real o andamento dos envios |
+
+---
+
+## Por que usar essa aplicação?
+
+Porque ninguém merece ficar copiando e colando e-mails o dia inteiro.  
+Automatizar é viver melhor. Mais produtividade, menos estresse, mais tempo pro café! ☕
+
+---
 
 ## Contribuindo
 
-Se você deseja contribuir para este projeto, fique à vontade para fazer um fork, enviar pull requests e compartilhar melhorias!
+Se quiser contribuir, fique à vontade!  
+Sugestões, melhorias, bugs ou ideias malucas são sempre bem-vindas! 😄
 
+---
 
 ## Licença
 
-Este projeto é de código aberto e distribuído sob a licença MIT. Consulte o arquivo LICENSE para mais detalhes.
+Este projeto está sob a licença MIT.  
+Sinta-se livre para usar, modificar e compartilhar!
 
+---
 
-## Observações Finais
-
-Caso esteja enfrentando problemas com o envio de e-mails, verifique as configurações do seu provedor de e-mail e se a autenticação de dois fatores está ativada.
-
-Lembre-se de garantir que os arquivos Excel com os e-mails estejam formatados corretamente para evitar problemas no processamento.
+Feito com 💡, café ☕ e umas boas horas de código por [Mario](https://github.com/M-4vlis)
