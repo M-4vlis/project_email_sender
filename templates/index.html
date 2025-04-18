@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Sender</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-center">Enviar e-mails em massa</h1>
+            <button id="toggleDarkMode" class="btn btn-outline-secondary">
+                <i id="darkModeIcon" class="fas fa-moon"></i> Modo Escuro
+            </button>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form id="emailForm" method="POST" action="{{ url_for('send_emails') }}" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="emailProvider" class="form-label">Provedor de Email</label>
+                <select class="form-select" id="emailProvider" name="email_provider" onchange="updateConfig()">
+                    {% for provider, config in providers.items() %}
+                        <option value="{{ provider }}">{{ provider.title() }}</option>
+                    {% endfor %}
+                </select>
+                <div id="loginHelp" class="form-text mt-1"></div>
+            </div>
+
+            <div id="customConfig" style="display:none;">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="smtpServer" class="form-label">Servidor SMTP</label>
+                        <input type="text" class="form-control" id="smtpServer" name="smtp_server">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="smtpPort" class="form-label">Porta SMTP</label>
+                        <input type="number" class="form-control" id="smtpPort" name="smtp_port">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="password" class="form-label">Senha</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <button type="button" class="btn btn-secondary" onclick="testConnection()"><i class="fas fa-plug"></i> Testar Conexão</button>
+                <span id="connectionStatus" class="ms-3"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="excelFile" class="form-label">Arquivo Excel com emails</label>
+                <input type="file" class="form-control" id="excelFile" name="excel_file" accept=".xlsx,.xls,.csv" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="subject" class="form-label">Assunto</label>
+                <input type="text" class="form-control" id="subject" name="subject" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="body" class="form-label">Corpo do Email</label>
+                <textarea class="form-control" id="body" name="body" rows="6" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="cc" class="form-label">Email em cópia (CC)</label>
+                <input type="email" class="form-control" id="cc" name="cc" placeholder="Opcional">
+            </div>
+
+            <div class="mb-3">
+                <label for="attachments" class="form-label">Anexos</label>
+                <input type="file" class="form-control" id="attachments" name="attachments" multiple accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xlsx,.xls,.csv">
+                <small class="text-muted">Máximo de 10MB por arquivo. Extensões permitidas: jpg, jpeg, png, gif, pdf, doc, docx, xlsx, xls, csv</small>
+                <div id="previewArea" class="preview-area"></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Enviar Emails</button>
+        </form>
+
+        <div class="mt-4" id="progressContainer" style="display: none;">
+            <h5>Progresso de Envio</h5>
+            <div class="progress">
+                <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+            </div>
+            <p id="progressText" class="mt-2"></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const body = document.body;
+        const darkBtn = document.getElementById('toggleDarkMode');
+        const darkIcon = document.getElementById('darkModeIcon');
+
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            body.classList.add('dark-mode');
+            darkIcon.classList.replace('fa-moon', 'fa-sun');
+        }
+
+        darkBtn.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+            darkIcon.classList.toggle('fa-moon');
+            darkIcon.classList.toggle('fa-sun');
+        });
+
+        // Mapa de provedores para configurar SMTP
+        const emailProviders = {
+            gmail: { smtp_server: 'smtp.gmail.com', smtp_port: 587 },
+            outlook: { smtp_server: 'smtp-mail.outlook.com', smtp_port: 587 },
+            office365: { smtp_server: 'smtp.office365.com', smtp_port: 587 },
+            yahoo: { smtp_server: 'smtp.mail.yahoo.com', smtp_port: 587 },
+            custom: { smtp_server: '', smtp_port: '' }
+        };
+
+        function updateConfig() {
+            const provider = document.getElementById('emailProvider').value;
+            const help = document.getElementById('loginHelp');
+            const custom = document.getElementById('customConfig');
+            const serverInput = document.getElementById('smtpServer');
+            const portInput = document.getElementById('smtpPort');
+
+            const config = emailProviders[provider] || { smtp_server: '', smtp_port: '' };
+            serverInput.value = config.smtp_server;
+            portInput.value = config.smtp_port;
+
+            if (provider === 'custom') {
+                custom.style.display = 'block';
+                help.innerText = 'Insira manualmente as configurações SMTP.';
+                serverInput.removeAttribute('readonly');
+                portInput.removeAttribute('readonly');
+            } else {
+                custom.style.display = 'none';
+                help.innerText = config.smtp_server ? `SMTP: ${config.smtp_server}` : '';
+                serverInput.setAttribute('readonly', 'readonly');
+                portInput.setAttribute('readonly', 'readonly');
+            }
+        }
+
+        // Chama updateConfig ao carregar a página
+        document.addEventListener('DOMContentLoaded', updateConfig);
+
+        function testConnection() {
+            const status = document.getElementById('connectionStatus');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const smtpServer = document.getElementById('smtpServer').value;
+            const smtpPort = document.getElementById('smtpPort').value;
+
+            if (!email || !password || !smtpServer || !smtpPort) {
+                status.textContent = '⚠️ Preencha todos os campos de conexão!';
+                status.className = 'text-warning';
+                return;
+            }
+
+            status.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Testando...';
+            status.className = '';
+
+            fetch('/test_connection', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, smtp_server: smtpServer, smtp_port: parseInt(smtpPort) })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    status.textContent = '✅ Conexão estabelecida com sucesso!';
+                    status.className = 'text-success';
+                } else {
+                    status.textContent = `❌ ${data.error}`;
+                    status.className = 'text-danger';
+                }
+            })
+            .catch(() => {
+                status.textContent = '❌ Erro ao testar conexão!';
+                status.className = 'text-danger';
+            });
+        }
+
+        document.getElementById('attachments').addEventListener('change', function () {
+            const preview = document.getElementById('previewArea');
+            preview.innerHTML = '';
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            for (const file of this.files) {
+                const item = document.createElement('div');
+                if (file.size > maxSize) {
+                    alert(`O arquivo ${file.name} excede o limite de 10MB.`);
+                    this.value = '';
+                    preview.innerHTML = '';
+                    return;
+                }
+                const ext = file.name.split('.').pop().toLowerCase();
+                let iconClass = 'fas fa-file';
+                if (["jpg","jpeg","png","gif"].includes(ext)) iconClass = 'fas fa-file-image';
+                else if (ext === 'pdf') iconClass = 'fas fa-file-pdf';
+                else if (["doc","docx"].includes(ext)) iconClass = 'fas fa-file-word';
+                else if (["xls","xlsx","csv"].includes(ext)) iconClass = 'fas fa-file-excel';
+                item.innerHTML = `<i class="${iconClass}"></i> ${file.name}`;
+                item.classList.add('preview-item');
+                preview.appendChild(item);
+            }
+        });
+    </script>
+</body>
+</html>
